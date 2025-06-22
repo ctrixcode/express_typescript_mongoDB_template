@@ -8,7 +8,7 @@ import { dbInstance } from './config';
 const PORT = process.env.PORT || 4000;
 
 (async () => {
-  await dbInstance();
+  // await dbInstance();
   app.listen(PORT, () => {
     logger.info(`🚀 Server is running on port ${PORT}`);
     logger.info(`📊 Health check available at: http://localhost:${PORT}/healthz`);
