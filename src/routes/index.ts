@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { logger } from '../utils';
+import exampleRoutes from './example.routes';
 
 const router = Router();
 
@@ -13,4 +14,7 @@ router.get('/healthz', (_, res) => {
   });
 });
 
-export default router; 
+// Example routes
+router.use('/examples', exampleRoutes);
+
+export default router;
