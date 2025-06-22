@@ -8,24 +8,30 @@ import {
   requestLogger,
   notFoundHandler,
   errorHandler,
-} from './middlewares';
-import routes from './routes';
+  sanitizeInput,
+  xssProtection,
+} from './middlewares/index';
+import routes from './routes/index';
 
 const app = express();
 
-// Security middleware
+// Core Middlewares
 app.use(helmet());
-
-// Rate limiting middleware
-app.use(generalLimiter);
-
-// Other Middlewares
 app.use(corsMiddleware);
+app.use(generalLimiter);
 app.use(bodyParserMiddleware);
 app.use(cookieParser());
 app.use(requestLogger);
-app.use(routes);
-app.use('*', notFoundHandler);
+
+// Security Middlewares
+app.use(xssProtection);
+app.use(sanitizeInput);
+
+// API Routes
+app.use('/api', routes);
+
+// Error Handling
+app.use(notFoundHandler);
 app.use(errorHandler);
 
 export default app;

@@ -1,7 +1,5 @@
 import cors from 'cors';
 
-if (process.env.NODE_ENV === 'development') {
-}
 const corsOptions = {
   origin:
     process.env.NODE_ENV === 'production'
