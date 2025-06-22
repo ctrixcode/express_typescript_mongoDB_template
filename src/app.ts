@@ -1,6 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
@@ -12,6 +13,9 @@ app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(bodyParser.text({ limit: '10mb' }));
 app.use(bodyParser.raw({ limit: '10mb' }));
+
+// Cookie parsing middleware
+app.use(cookieParser());
 
 // Health check route
 app.get('/healthz', (req, res) => {
