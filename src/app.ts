@@ -25,10 +25,8 @@ app.use(bodyParserMiddleware);
 app.use(cookieParser());
 app.use(requestLogger);
 app.use(routes);
-
 app.use('*', notFoundHandler);
-
-// Error handling middleware
 app.use(errorHandler);
+
 
 export default app;
