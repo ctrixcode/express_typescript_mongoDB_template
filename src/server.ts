@@ -11,7 +11,9 @@ const PORT = process.env.PORT || 4000;
   // await dbInstance();
   app.listen(PORT, () => {
     logger.info(`🚀 Server is running on port ${PORT}`);
-    logger.info(`📊 Health check available at: http://localhost:${PORT}/healthz`);
+    logger.info(
+      `📊 Health check available at: http://localhost:${PORT}/healthz`
+    );
     logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
 })();

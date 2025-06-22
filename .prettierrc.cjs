@@ -14,4 +14,4 @@ module.exports = {
   proseWrap: 'preserve',
   htmlWhitespaceSensitivity: 'css',
   embeddedLanguageFormatting: 'auto',
-}; 
+};

@@ -7,7 +7,7 @@ export const generalLimiter = rateLimit({
   max: 100, // Limit each IP to 100 requests per windowMs
   message: {
     error: 'Too many requests from this IP, please try again later.',
-    retryAfter: '15 minutes'
+    retryAfter: '15 minutes',
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
@@ -15,17 +15,17 @@ export const generalLimiter = rateLimit({
     logger.warn(`Rate limit exceeded for IP: ${req.ip}`);
     res.status(429).json({
       error: 'Too many requests from this IP, please try again later.',
-      retryAfter: '15 minutes'
+      retryAfter: '15 minutes',
     });
-  }
+  },
 });
 
 export const strictLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, 
-  max: 10, 
+  windowMs: 5 * 60 * 1000,
+  max: 10,
   message: {
     error: 'Too many requests from this IP, please try again later.',
-    retryAfter: '5 minutes'
+    retryAfter: '5 minutes',
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -33,7 +33,7 @@ export const strictLimiter = rateLimit({
     logger.warn(`Strict rate limit exceeded for IP: ${req.ip}`);
     res.status(429).json({
       error: 'Too many requests from this IP, please try again later.',
-      retryAfter: '5 minutes'
+      retryAfter: '5 minutes',
     });
-  }
+  },
 });

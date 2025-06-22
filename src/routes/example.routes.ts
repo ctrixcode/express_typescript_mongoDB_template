@@ -61,4 +61,4 @@ router.put('/:id', exampleController.updateExample);
  */
 router.delete('/:id', exampleController.deleteExample);
 
-export default router; 
+export default router;

@@ -25,19 +25,17 @@ const level = () => {
   return isDevelopment ? 'debug' : 'warn';
 };
 
-
 const transports = [
-
   new winston.transports.Console({
     format: winston.format.combine(
       winston.format.timestamp({ format: 'HH:mm:ss' }),
       winston.format.colorize({ all: true }),
       winston.format.printf(
-        (info) => `${info.timestamp} ${info.level}: ${info.message}`,
-      ),
-    )
+        info => `${info.timestamp} ${info.level}: ${info.message}`
+      )
+    ),
   }),
-  
+
   // Error log file
   new winston.transports.File({
     filename: path.join('logs', 'error.log'),
@@ -45,16 +43,16 @@ const transports = [
     format: winston.format.combine(
       winston.format.timestamp(),
       winston.format.json()
-    )
+    ),
   }),
-  
+
   // Combined log file
   new winston.transports.File({
     filename: path.join('logs', 'combined.log'),
     format: winston.format.combine(
       winston.format.timestamp(),
       winston.format.json()
-    )
+    ),
   }),
 ];
 

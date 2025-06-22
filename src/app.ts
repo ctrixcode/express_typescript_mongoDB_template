@@ -1,13 +1,13 @@
 import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
-import { 
-  generalLimiter, 
-  bodyParserMiddleware, 
-  corsMiddleware, 
+import {
+  generalLimiter,
+  bodyParserMiddleware,
+  corsMiddleware,
   requestLogger,
   notFoundHandler,
-  errorHandler 
+  errorHandler,
 } from './middlewares';
 import routes from './routes';
 
@@ -27,6 +27,5 @@ app.use(requestLogger);
 app.use(routes);
 app.use('*', notFoundHandler);
 app.use(errorHandler);
-
 
 export default app;

@@ -33,14 +33,18 @@ export interface ExampleFilter {
 /**
  * Create a new example item
  */
-export const createExample = async (exampleData: CreateExampleData): Promise<IExample> => {
+export const createExample = async (
+  exampleData: CreateExampleData
+): Promise<IExample> => {
   try {
     logger.info('Creating new example item', { name: exampleData.name });
-    
+
     const example = new Example(exampleData);
     const savedExample = await example.save();
-    
-    logger.info('Example item created successfully', { exampleId: savedExample._id });
+
+    logger.info('Example item created successfully', {
+      exampleId: savedExample._id,
+    });
     return savedExample;
   } catch (error) {
     logger.error('Error creating example item:', error);
@@ -52,28 +56,29 @@ export const createExample = async (exampleData: CreateExampleData): Promise<IEx
  * Get all example items with pagination and filtering
  */
 export const getExamples = async (
-  page: number = 1, 
+  page: number = 1,
   limit: number = 10,
   category?: string,
   isDeleted?: boolean
-): Promise<{ examples: IExample[], total: number }> => {
+): Promise<{ examples: IExample[]; total: number }> => {
   try {
     const skip = (page - 1) * limit;
-    
+
     // Build filter object with proper typing
     const filter: ExampleFilter = {};
     if (category) filter['metadata.category'] = category;
     if (isDeleted !== undefined) filter.isDeleted = isDeleted;
-    
+
     const [examples, total] = await Promise.all([
-      Example.find(filter)
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 }),
-      Example.countDocuments(filter)
+      Example.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }),
+      Example.countDocuments(filter),
     ]);
 
-    logger.info('Example items retrieved successfully', { count: examples.length, page, limit });
+    logger.info('Example items retrieved successfully', {
+      count: examples.length,
+      page,
+      limit,
+    });
     return { examples, total };
   } catch (error) {
     logger.error('Error retrieving example items:', error);
@@ -84,10 +89,12 @@ export const getExamples = async (
 /**
  * Get example item by ID
  */
-export const getExampleById = async (exampleId: string): Promise<IExample | null> => {
+export const getExampleById = async (
+  exampleId: string
+): Promise<IExample | null> => {
   try {
     const example = await Example.findById(exampleId);
-    
+
     if (!example) {
       logger.warn('Example item not found', { exampleId });
       return null;
@@ -104,7 +111,10 @@ export const getExampleById = async (exampleId: string): Promise<IExample | null
 /**
  * Update example item
  */
-export const updateExample = async (exampleId: string, updateData: UpdateExampleData): Promise<IExample | null> => {
+export const updateExample = async (
+  exampleId: string,
+  updateData: UpdateExampleData
+): Promise<IExample | null> => {
   try {
     const example = await Example.findByIdAndUpdate(
       exampleId,
@@ -152,14 +162,19 @@ export const deleteExample = async (exampleId: string): Promise<boolean> => {
 /**
  * Get examples by category
  */
-export const getExamplesByCategory = async (category: string): Promise<IExample[]> => {
+export const getExamplesByCategory = async (
+  category: string
+): Promise<IExample[]> => {
   try {
-    const examples = await Example.find({ 
+    const examples = await Example.find({
       'metadata.category': category,
-      isDeleted: false 
+      isDeleted: false,
     }).sort({ createdAt: -1 });
 
-    logger.info('Examples retrieved by category', { category, count: examples.length });
+    logger.info('Examples retrieved by category', {
+      category,
+      count: examples.length,
+    });
     return examples;
   } catch (error) {
     logger.error('Error retrieving examples by category:', error);
@@ -170,20 +185,25 @@ export const getExamplesByCategory = async (category: string): Promise<IExample[
 /**
  * Search examples by name or description
  */
-export const searchExamples = async (searchTerm: string): Promise<IExample[]> => {
+export const searchExamples = async (
+  searchTerm: string
+): Promise<IExample[]> => {
   try {
     const examples = await Example.find({
       $or: [
         { name: { $regex: searchTerm, $options: 'i' } },
-        { description: { $regex: searchTerm, $options: 'i' } }
+        { description: { $regex: searchTerm, $options: 'i' } },
       ],
-      isDeleted: false
+      isDeleted: false,
     }).sort({ createdAt: -1 });
 
-    logger.info('Examples searched successfully', { searchTerm, count: examples.length });
+    logger.info('Examples searched successfully', {
+      searchTerm,
+      count: examples.length,
+    });
     return examples;
   } catch (error) {
     logger.error('Error searching examples:', error);
     throw error;
   }
-}; 
+};
