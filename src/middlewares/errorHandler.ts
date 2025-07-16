@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { logger } from '../utils';
 
 // 404 handler
@@ -11,12 +11,7 @@ export const notFoundHandler = (req: Request, res: Response) => {
 };
 
 // Error handling middleware
-export const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const errorHandler = (err: Error, req: Request, res: Response) => {
   logger.error('Unhandled error:', { error: err.message, stack: err.stack });
   res.status(500).json({
     error: 'Internal server error',

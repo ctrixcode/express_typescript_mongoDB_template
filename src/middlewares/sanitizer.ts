@@ -1,10 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
+import type { ParsedQs } from 'qs';
 
 /**
  * Simple input sanitization middleware
  * Removes potentially harmful content from request data
  */
-export const sanitizeInput = (req: Request, res: Response, next: NextFunction) => {
+export const sanitizeInput = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // Sanitize request body
   if (req.body) {
     req.body = sanitizeObject(req.body);
@@ -12,12 +17,12 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction) =
 
   // Sanitize query parameters
   if (req.query) {
-    req.query = sanitizeObject(req.query);
+    req.query = sanitizeObject(req.query) as ParsedQs;
   }
 
   // Sanitize URL parameters
   if (req.params) {
-    req.params = sanitizeObject(req.params);
+    req.params = sanitizeObject(req.params) as Record<string, string>;
   }
 
   next();
@@ -26,7 +31,7 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction) =
 /**
  * Sanitize an object recursively
  */
-const sanitizeObject = (obj: any): any => {
+const sanitizeObject = (obj: unknown): unknown => {
   if (typeof obj === 'string') {
     return sanitizeString(obj);
   }
@@ -36,7 +41,7 @@ const sanitizeObject = (obj: any): any => {
   }
 
   if (obj && typeof obj === 'object') {
-    const sanitized: any = {};
+    const sanitized: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
       sanitized[key] = sanitizeObject(value);
     }
@@ -52,35 +57,45 @@ const sanitizeObject = (obj: any): any => {
 const sanitizeString = (str: string): string => {
   if (typeof str !== 'string') return str;
 
-  return str
-    // Remove HTML tags
-    .replace(/<[^>]*>/g, '')
-    // Remove script content
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    // Remove dangerous attributes
-    .replace(/on\w+\s*=/gi, '')
-    .replace(/javascript:/gi, '')
-    // Remove null bytes
-    .replace(/\0/g, '')
-    // Trim whitespace
-    .trim();
+  return (
+    str
+      // Remove HTML tags
+      .replace(/<[^>]*>/g, '')
+      // Remove script content
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      // Remove dangerous attributes
+      .replace(/on\w+\s*=/gi, '')
+      .replace(/javascript:/gi, '')
+      // Remove null bytes
+      .replace(/\0/g, '')
+      // Trim whitespace
+      .trim()
+  );
 };
 
 /**
  * XSS Protection middleware
  */
-export const xssProtection = (req: Request, res: Response, next: NextFunction) => {
+export const xssProtection = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // Set security headers
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  
+
   next();
 };
 
 /**
  * SQL Injection Protection (basic)
  */
-export const sqlInjectionProtection = (req: Request, res: Response, next: NextFunction) => {
+export const sqlInjectionProtection = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const sqlPatterns = [
     /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION)\b)/gi,
     /(\b(OR|AND)\b\s+\d+\s*=\s*\d+)/gi,
@@ -88,23 +103,27 @@ export const sqlInjectionProtection = (req: Request, res: Response, next: NextFu
     /(--|\/\*|\*\/|;)/g,
   ];
 
-  const checkForSQLInjection = (obj: any): boolean => {
+  const checkForSQLInjection = (obj: unknown): boolean => {
     if (typeof obj === 'string') {
       return sqlPatterns.some(pattern => pattern.test(obj));
     }
-    
+
     if (Array.isArray(obj)) {
       return obj.some(item => checkForSQLInjection(item));
     }
-    
+
     if (obj && typeof obj === 'object') {
       return Object.values(obj).some(value => checkForSQLInjection(value));
     }
-    
+
     return false;
   };
 
-  if (checkForSQLInjection(req.body) || checkForSQLInjection(req.query) || checkForSQLInjection(req.params)) {
+  if (
+    checkForSQLInjection(req.body) ||
+    checkForSQLInjection(req.query) ||
+    checkForSQLInjection(req.params)
+  ) {
     return res.status(400).json({
       success: false,
       message: 'Potentially harmful content detected',
@@ -117,7 +136,10 @@ export const sqlInjectionProtection = (req: Request, res: Response, next: NextFu
 /**
  * Rate limiting for specific endpoints
  */
-export const createRateLimit = (windowMs: number = 15 * 60 * 1000, max: number = 100) => {
+export const createRateLimit = (
+  windowMs: number = 15 * 60 * 1000,
+  max: number = 100
+) => {
   const requests = new Map<string, { count: number; resetTime: number }>();
 
   return (req: Request, res: Response, next: NextFunction) => {
@@ -125,7 +147,7 @@ export const createRateLimit = (windowMs: number = 15 * 60 * 1000, max: number =
     const now = Date.now();
 
     const userRequests = requests.get(ip);
-    
+
     if (!userRequests || now > userRequests.resetTime) {
       requests.set(ip, { count: 1, resetTime: now + windowMs });
       return next();
@@ -141,4 +163,4 @@ export const createRateLimit = (windowMs: number = 15 * 60 * 1000, max: number =
     userRequests.count++;
     next();
   };
-}; 
+};
