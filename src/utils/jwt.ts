@@ -5,12 +5,7 @@ import AuthSessionTokenModel from '../models/AuthSessionToken';
 import { UnauthorizedError } from './ApiError';
 import { error as errorMessages } from '../constants/messages';
 import { logger } from './logger';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey';
-const JWT_ACCESS_TOKEN_EXPIRES_IN =
-  process.env.JWT_ACCESS_TOKEN_EXPIRES_IN || '59m';
-const JWT_REFRESH_TOKEN_EXPIRES_IN =
-  process.env.JWT_REFRESH_TOKEN_EXPIRES_IN || '7d';
+import { appConfig } from '../config';
 
 export interface TokenPayload {
   userId: string;
@@ -25,9 +20,9 @@ export interface TokenPayload {
  */
 export const generateAccessToken = (payload: TokenPayload): string => {
   const options = {
-    expiresIn: JWT_ACCESS_TOKEN_EXPIRES_IN,
+    expiresIn: appConfig.jwt.accessTokenExpiresIn,
   };
-  return jwt.sign(payload, JWT_SECRET, options);
+  return jwt.sign(payload, appConfig.jwt.secret, options);
 };
 
 /**
@@ -42,17 +37,20 @@ export const generateRefreshToken = (
 ): { refreshToken: string; jti: string } => {
   const jti = uuidv4();
   const options = {
-    expiresIn: JWT_REFRESH_TOKEN_EXPIRES_IN,
+    expiresIn: appConfig.jwt.refreshTokenExpiresIn,
     jwtid: jti,
   };
-  const refreshToken = jwt.sign(payload, JWT_SECRET, options);
+  const refreshToken = jwt.sign(payload, appConfig.jwt.secret, options);
 
   // Calculate expiration date for database storage
   let expiresInSeconds: number;
-  if (typeof JWT_REFRESH_TOKEN_EXPIRES_IN === 'string') {
+  if (typeof appConfig.jwt.refreshTokenExpiresIn === 'string') {
     // A simple parser for formats like "7d", "59m", etc.
-    const value = parseInt(JWT_REFRESH_TOKEN_EXPIRES_IN.slice(0, -1), 10);
-    const unit = JWT_REFRESH_TOKEN_EXPIRES_IN.slice(-1);
+    const value = parseInt(
+      appConfig.jwt.refreshTokenExpiresIn.slice(0, -1),
+      10
+    );
+    const unit = appConfig.jwt.refreshTokenExpiresIn.slice(-1);
     switch (unit) {
       case 's':
         expiresInSeconds = value;
@@ -70,7 +68,7 @@ export const generateRefreshToken = (
         expiresInSeconds = 7 * 24 * 60 * 60; // Default to 7 days
     }
   } else {
-    expiresInSeconds = JWT_REFRESH_TOKEN_EXPIRES_IN;
+    expiresInSeconds = appConfig.jwt.refreshTokenExpiresIn;
   }
 
   const expiresAt = new Date(Date.now() + expiresInSeconds * 1000);
@@ -100,7 +98,7 @@ export const generateRefreshToken = (
  */
 export const verifyToken = (token: string): TokenPayload => {
   try {
-    return jwt.verify(token, JWT_SECRET) as TokenPayload;
+    return jwt.verify(token, appConfig.jwt.secret) as TokenPayload;
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       throw new UnauthorizedError(errorMessages.AUTH.EXPIRED_TOKEN);

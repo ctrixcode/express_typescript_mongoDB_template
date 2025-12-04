@@ -1,11 +1,8 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 import app from './app';
 import { logger } from './utils';
-import { dbInstance } from './config';
+import { dbInstance, appConfig } from './config';
 
-const PORT = process.env.PORT || 4000;
+const PORT = appConfig.port;
 
 (async () => {
   await dbInstance();
@@ -15,6 +12,6 @@ const PORT = process.env.PORT || 4000;
       `📊 Health check available at: http://localhost:${PORT}/healthz`
     );
     logger.info(`📚 API docs available at: http://localhost:${PORT}/api-docs`);
-    logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    logger.info(`🌍 Environment: ${appConfig.env}`);
   });
 })();
