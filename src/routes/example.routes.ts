@@ -1,5 +1,10 @@
 import { Router } from 'express';
 import * as exampleController from '../controllers/example.controller';
+import { validate } from '../middlewares/validate';
+import {
+  createExampleSchema,
+  updateExampleSchema,
+} from '../schemas/example.schema';
 
 const router = Router();
 
@@ -8,7 +13,11 @@ const router = Router();
  * @desc    Create a new example item
  * @access  Public
  */
-router.post('/', exampleController.createExample);
+router.post(
+  '/',
+  validate(createExampleSchema),
+  exampleController.createExample
+);
 
 /**
  * @route   GET /api/examples
@@ -51,7 +60,11 @@ router.get('/:id', exampleController.getExampleById);
  * @access  Public
  * @param   id - Example item ID
  */
-router.put('/:id', exampleController.updateExample);
+router.put(
+  '/:id',
+  validate(updateExampleSchema),
+  exampleController.updateExample
+);
 
 /**
  * @route   DELETE /api/examples/:id

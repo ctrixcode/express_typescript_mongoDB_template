@@ -1,48 +1,43 @@
 import { Request, Response } from 'express';
 import * as exampleService from '../services/example.service';
 import { logger } from '../utils';
+import { toExampleDto } from '../mappers/example.mapper';
+import {
+  CreateExampleInput,
+  UpdateExampleInput,
+} from '../schemas/example.schema';
 
 /**
  * Create a new example item
  * POST /api/examples
  */
 export const createExample = async (
-  req: Request,
+  req: Request<object, object, CreateExampleInput>,
   res: Response
 ): Promise<void> => {
   try {
-    const exampleData = req.body;
-
-    // Basic validation
-    if (
-      !exampleData.name ||
-      !exampleData.description ||
-      !exampleData.price ||
-      !exampleData.metadata?.category
-    ) {
-      res.status(400).json({
-        success: false,
-        message:
-          'Missing required fields: name, description, price, and metadata.category are required',
-      });
-      return;
-    }
-
-    const example = await exampleService.createExample(exampleData);
+    const example = await exampleService.createExample(req.body);
+    const exampleDto = toExampleDto(example);
 
     res.status(201).json({
       success: true,
-      data: example,
+      data: exampleDto,
       message: 'Example item created successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in createExample controller:', error);
 
-    if (error.name === 'ValidationError') {
+    if (
+      error instanceof Error &&
+      error.name === 'ValidationError' &&
+      'errors' in error
+    ) {
       res.status(400).json({
         success: false,
         message: 'Validation error',
-        errors: Object.values(error.errors).map((err: any) => err.message),
+        errors: Object.values(error.errors as { message: string }[]).map(
+          err => err.message
+        ),
       });
       return;
     }
@@ -78,9 +73,11 @@ export const getExamples = async (
       isDeleted
     );
 
+    const examplesDto = result.examples.map(toExampleDto);
+
     res.status(200).json({
       success: true,
-      data: result.examples,
+      data: examplesDto,
       pagination: {
         page,
         limit,
@@ -126,9 +123,11 @@ export const getExampleById = async (
       return;
     }
 
+    const exampleDto = toExampleDto(example);
+
     res.status(200).json({
       success: true,
-      data: example,
+      data: exampleDto,
     });
   } catch (error) {
     logger.error('Error in getExampleById controller:', error);
@@ -144,22 +143,13 @@ export const getExampleById = async (
  * PUT /api/examples/:id
  */
 export const updateExample = async (
-  req: Request,
+  req: Request<{ id: string }, object, UpdateExampleInput>,
   res: Response
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
 
-    if (!id) {
-      res.status(400).json({
-        success: false,
-        message: 'Example ID is required',
-      });
-      return;
-    }
-
-    const example = await exampleService.updateExample(id, updateData);
+    const example = await exampleService.updateExample(id, req.body);
 
     if (!example) {
       res.status(404).json({
@@ -169,19 +159,27 @@ export const updateExample = async (
       return;
     }
 
+    const exampleDto = toExampleDto(example);
+
     res.status(200).json({
       success: true,
-      data: example,
+      data: exampleDto,
       message: 'Example item updated successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error in updateExample controller:', error);
 
-    if (error.name === 'ValidationError') {
+    if (
+      error instanceof Error &&
+      error.name === 'ValidationError' &&
+      'errors' in error
+    ) {
       res.status(400).json({
         success: false,
         message: 'Validation error',
-        errors: Object.values(error.errors).map((err: any) => err.message),
+        errors: Object.values(error.errors as { message: string }[]).map(
+          err => err.message
+        ),
       });
       return;
     }

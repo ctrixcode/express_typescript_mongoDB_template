@@ -1,29 +1,10 @@
 import Example, { IExample } from '../models/Example';
 import { logger } from '../utils';
-
-export interface CreateExampleData {
-  name: string;
-  description: string;
-  isDeleted?: boolean;
-  tags?: string[];
-  price: number;
-  metadata: {
-    category: 'electronics' | 'clothing' | 'books' | 'food' | 'other';
-    priority?: 'low' | 'medium' | 'high';
-  };
-}
-
-export interface UpdateExampleData {
-  name?: string;
-  description?: string;
-  isDeleted?: boolean;
-  tags?: string[];
-  price?: number;
-  metadata?: {
-    category?: 'electronics' | 'clothing' | 'books' | 'food' | 'other';
-    priority?: 'low' | 'medium' | 'high';
-  };
-}
+import {
+  CreateExampleInput,
+  UpdateExampleInput,
+} from '../schemas/example.schema';
+import { toExample, toExampleUpdate } from '../mappers/example.mapper';
 
 export interface ExampleFilter {
   'metadata.category'?: string;
@@ -34,12 +15,13 @@ export interface ExampleFilter {
  * Create a new example item
  */
 export const createExample = async (
-  exampleData: CreateExampleData
+  exampleData: CreateExampleInput
 ): Promise<IExample> => {
   try {
     logger.info('Creating new example item', { name: exampleData.name });
 
-    const example = new Example(exampleData);
+    const exampleToCreate = toExample(exampleData);
+    const example = new Example(exampleToCreate);
     const savedExample = await example.save();
 
     logger.info('Example item created successfully', {
@@ -113,12 +95,13 @@ export const getExampleById = async (
  */
 export const updateExample = async (
   exampleId: string,
-  updateData: UpdateExampleData
+  updateData: UpdateExampleInput
 ): Promise<IExample | null> => {
   try {
+    const exampleToUpdate = toExampleUpdate(updateData);
     const example = await Example.findByIdAndUpdate(
       exampleId,
-      { $set: updateData },
+      { $set: exampleToUpdate },
       { new: true, runValidators: true }
     );
 
