@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { IExample } from '../models/Example';
 import {
   CreateExampleInput,
@@ -11,7 +12,7 @@ import {
  * @param example The Mongoose document to convert.
  * @returns A plain JavaScript object representing the example.
  */
-export const toExampleDto = (example: IExample) => {
+export const toExampleDto = (example: mongoose.HydratedDocument<IExample>) => {
   return {
     id: example._id.toString(),
     name: example.name,

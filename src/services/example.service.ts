@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Example, { IExample } from '../models/Example';
 import { logger } from '../utils';
 import {
@@ -16,7 +17,7 @@ export interface ExampleFilter {
  */
 export const createExample = async (
   exampleData: CreateExampleInput
-): Promise<IExample> => {
+): Promise<mongoose.HydratedDocument<IExample>> => {
   try {
     logger.info('Creating new example item', { name: exampleData.name });
 
@@ -42,7 +43,10 @@ export const getExamples = async (
   limit: number = 10,
   category?: string,
   isDeleted?: boolean
-): Promise<{ examples: IExample[]; total: number }> => {
+): Promise<{
+  examples: mongoose.HydratedDocument<IExample>[];
+  total: number;
+}> => {
   try {
     const skip = (page - 1) * limit;
 
@@ -73,7 +77,7 @@ export const getExamples = async (
  */
 export const getExampleById = async (
   exampleId: string
-): Promise<IExample | null> => {
+): Promise<mongoose.HydratedDocument<IExample> | null> => {
   try {
     const example = await Example.findById(exampleId);
 
@@ -96,7 +100,7 @@ export const getExampleById = async (
 export const updateExample = async (
   exampleId: string,
   updateData: UpdateExampleInput
-): Promise<IExample | null> => {
+): Promise<mongoose.HydratedDocument<IExample> | null> => {
   try {
     const exampleToUpdate = toExampleUpdate(updateData);
     const example = await Example.findByIdAndUpdate(
@@ -147,7 +151,7 @@ export const deleteExample = async (exampleId: string): Promise<boolean> => {
  */
 export const getExamplesByCategory = async (
   category: string
-): Promise<IExample[]> => {
+): Promise<mongoose.HydratedDocument<IExample>[]> => {
   try {
     const examples = await Example.find({
       'metadata.category': category,
@@ -170,7 +174,7 @@ export const getExamplesByCategory = async (
  */
 export const searchExamples = async (
   searchTerm: string
-): Promise<IExample[]> => {
+): Promise<mongoose.HydratedDocument<IExample>[]> => {
   try {
     const examples = await Example.find({
       $or: [
