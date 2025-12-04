@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { Types } from 'mongoose';
 import AuthSessionTokenModel from '../models/AuthSessionToken';
@@ -19,8 +19,8 @@ export interface TokenPayload {
  * @returns The generated access token string.
  */
 export const generateAccessToken = (payload: TokenPayload): string => {
-  const options = {
-    expiresIn: appConfig.jwt.accessTokenExpiresIn,
+  const options: SignOptions = {
+    expiresIn: appConfig.jwt.accessTokenExpiresIn as SignOptions['expiresIn'],
   };
   return jwt.sign(payload, appConfig.jwt.secret, options);
 };
@@ -36,8 +36,8 @@ export const generateRefreshToken = (
   userAgent: string
 ): { refreshToken: string; jti: string } => {
   const jti = uuidv4();
-  const options = {
-    expiresIn: appConfig.jwt.refreshTokenExpiresIn,
+  const options: SignOptions = {
+    expiresIn: appConfig.jwt.refreshTokenExpiresIn as SignOptions['expiresIn'],
     jwtid: jti,
   };
   const refreshToken = jwt.sign(payload, appConfig.jwt.secret, options);
@@ -84,7 +84,7 @@ export const generateRefreshToken = (
 
   authSessionToken.save().catch(err => {
     logger.error('Error saving AuthSessionToken:', err);
-    // Non-blocking call: Don't prevent token generation if DB save fails.
+    // Non-blocking call: Don't prevent token generation even if DB save fails.
   });
 
   return { refreshToken, jti };
