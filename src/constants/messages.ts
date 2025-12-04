@@ -12,6 +12,10 @@ export const error = {
   BAD_REQUEST: 'The request was invalid.',
   UNAUTHORIZED: 'Authentication failed. Please log in.',
   FORBIDDEN: 'You do not have permission to access this resource.',
+  AUTH: {
+    EXPIRED_TOKEN: 'Your session has expired. Please log in again.',
+    INVALID_TOKEN: 'Invalid token. Please log in again.',
+  },
 };
 
 export const validation = {

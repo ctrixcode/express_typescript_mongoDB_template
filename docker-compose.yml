@@ -8,13 +8,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "4000:4000"
+    env_file:
+      - ./.env
     environment:
-      - PORT=4000
-      - NODE_ENV=development
+      # Override the MONGODB_URI from the .env file to use the Docker service name
       - MONGODB_URI=mongodb://mongo:27017/my-app-db
-      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
-      - JWT_SECRET=a-safe-local-secret-for-development
-      - LOG_LEVEL=info
     volumes:
       - .:/app
       - /app/node_modules
