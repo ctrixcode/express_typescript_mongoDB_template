@@ -14,7 +14,7 @@ import {
  */
 export const toExampleDto = (example: mongoose.HydratedDocument<IExample>) => {
   return {
-    id: example._id.toString(),
+    id: example._id!.toString(),
     name: example.name,
     description: example.description,
     tags: example.tags,

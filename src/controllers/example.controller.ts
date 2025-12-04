@@ -7,6 +7,7 @@ import {
 } from '../schemas/example.schema';
 import { asyncHandler } from '../utils/asyncHandler';
 import { success as successMessages } from '../constants/messages';
+import { sendSuccessResponse } from '../utils/responseHandler';
 
 /**
  * Create a new example item
@@ -19,11 +20,12 @@ export const createExample = asyncHandler(
     const example = await exampleService.createExample(req.body);
     const exampleDto = toExampleDto(example);
 
-    res.status(201).json({
-      status: 'success',
-      message: successMessages.CREATED('Example'),
-      data: exampleDto,
-    });
+    sendSuccessResponse(
+      res,
+      201,
+      successMessages.CREATED('Example'),
+      exampleDto
+    );
   }
 );
 
@@ -49,17 +51,18 @@ export const getExamples = asyncHandler(
 
     const examplesDto = result.examples.map(toExampleDto);
 
-    res.status(200).json({
-      status: 'success',
-      message: successMessages.FETCHED('Examples'),
-      data: examplesDto,
-      pagination: {
+    sendSuccessResponse(
+      res,
+      200,
+      successMessages.FETCHED('Examples'),
+      examplesDto,
+      {
         page,
         limit,
         total: result.total,
         pages: Math.ceil(result.total / limit),
-      },
-    });
+      }
+    );
   }
 );
 
@@ -72,11 +75,12 @@ export const getExampleById = asyncHandler(
     const example = await exampleService.getExampleById(id);
     const exampleDto = toExampleDto(example);
 
-    res.status(200).json({
-      status: 'success',
-      message: successMessages.FETCHED('Example'),
-      data: exampleDto,
-    });
+    sendSuccessResponse(
+      res,
+      200,
+      successMessages.FETCHED('Example'),
+      exampleDto
+    );
   }
 );
 
@@ -92,11 +96,12 @@ export const updateExample = asyncHandler(
     const example = await exampleService.updateExample(id, req.body);
     const exampleDto = toExampleDto(example);
 
-    res.status(200).json({
-      status: 'success',
-      message: successMessages.UPDATED('Example'),
-      data: exampleDto,
-    });
+    sendSuccessResponse(
+      res,
+      200,
+      successMessages.UPDATED('Example'),
+      exampleDto
+    );
   }
 );
 
@@ -107,7 +112,7 @@ export const deleteExample = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     await exampleService.deleteExample(id);
-    res.status(204).send(); // No content
+    res.status(204).send(); // No content, so no success response handler needed
   }
 );
 
@@ -120,11 +125,12 @@ export const getExamplesByCategory = asyncHandler(
     const examples = await exampleService.getExamplesByCategory(category);
     const examplesDto = examples.map(toExampleDto);
 
-    res.status(200).json({
-      status: 'success',
-      message: successMessages.FETCHED('Examples'),
-      data: examplesDto,
-    });
+    sendSuccessResponse(
+      res,
+      200,
+      successMessages.FETCHED('Examples'),
+      examplesDto
+    );
   }
 );
 
@@ -137,10 +143,11 @@ export const searchExamples = asyncHandler(
     const examples = await exampleService.searchExamples(q as string);
     const examplesDto = examples.map(toExampleDto);
 
-    res.status(200).json({
-      status: 'success',
-      message: successMessages.FETCHED('Examples'),
-      data: examplesDto,
-    });
+    sendSuccessResponse(
+      res,
+      200,
+      successMessages.FETCHED('Examples'),
+      examplesDto
+    );
   }
 );

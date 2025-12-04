@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils';
 import ApiError, { NotFoundError } from '../utils/ApiError';
 import { error as errorMessages } from '../constants/messages';
+import { sendErrorResponse } from '../utils/responseHandler';
+import { appConfig } from '../config';
 
 // 404 handler - using a specific error class
 export const notFoundHandler = (
@@ -40,11 +42,8 @@ export const errorHandler = (
   const { statusCode, message, isOperational, stack } = error as ApiError;
 
   // For non-operational errors in production, we don't want to leak details.
-  if (!isOperational && process.env.NODE_ENV === 'production') {
-    res.status(500).json({
-      status: 'error',
-      message: errorMessages.INTERNAL_SERVER_ERROR,
-    });
+  if (!isOperational && appConfig.env === 'production') {
+    sendErrorResponse(res, 500, errorMessages.INTERNAL_SERVER_ERROR);
     return;
   }
 
@@ -57,15 +56,8 @@ export const errorHandler = (
     });
   }
 
-  const response: { status: string; message: string; stack?: string } = {
-    status: 'error',
-    message,
-  };
-
   // Include stack trace in development for easier debugging
-  if (process.env.NODE_ENV === 'development') {
-    response.stack = stack;
-  }
+  const errorStack = appConfig.env === 'development' ? stack : undefined;
 
-  res.status(statusCode).json(response);
+  sendErrorResponse(res, statusCode, message, undefined, undefined, errorStack);
 };
