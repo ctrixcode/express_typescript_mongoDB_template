@@ -1,0 +1,4 @@
+Test ID,Module,Route / Function,Type,Expected,Actual,Status,Tester,Date,Notes
+"TC_001","Example","should create a new example item","Unit","","As expected","✅","QA","2025-12-04",""
+"TC_002","Example","should return 400 if required fields are missing","Unit","","As expected","✅","QA","2025-12-04",""
+"TC_003","Example","should return a list of example items","Unit","","As expected","✅","QA","2025-12-04",""

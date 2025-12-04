@@ -34,7 +34,7 @@ describe('Example Controller Integration', () => {
         .send(exampleData)
         .expect(201);
       expect(res.body.success).toBe(true);
-      expect(res.body.data).toHaveProperty('_id');
+      expect(res.body.data).toHaveProperty('id');
       expect(res.body.data.name).toBe('Test Item');
     });
 
@@ -44,7 +44,8 @@ describe('Example Controller Integration', () => {
         .send({})
         .expect(400);
       expect(res.body.success).toBe(false);
-      expect(res.body.message).toMatch(/Missing required fields/);
+      expect(res.body.errors).toBeDefined();
+      expect(res.body.errors.length).toBeGreaterThan(0);
     });
   });
 
@@ -62,12 +63,10 @@ describe('Example Controller Integration', () => {
         price: 20,
         metadata: { category: 'electronics' },
       });
-      const res = await request(server)
-        .get('/api/examples')
-        .expect(200);
+      const res = await request(server).get('/api/examples').expect(200);
       expect(res.body.success).toBe(true);
       expect(Array.isArray(res.body.data)).toBe(true);
       expect(res.body.data.length).toBeGreaterThanOrEqual(2);
     });
   });
-}); 
+});

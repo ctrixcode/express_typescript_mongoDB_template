@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodError } from 'zod';
 import { logger } from '../utils';
+import { appConfig } from '../config'; // Import appConfig
 
 export const validate =
   (schema: z.Schema) =>
@@ -17,7 +18,10 @@ export const validate =
         const errorMessages = error.issues.map(issue => ({
           message: `${issue.path.join('.')} is ${issue.message.toLowerCase()}`,
         }));
-        logger.error('Zod validation error', { errors: errorMessages });
+        // Only log Zod errors if not in test environment
+        if (appConfig.env !== 'test') {
+          logger.error('Zod validation error', { errors: errorMessages });
+        }
         return res.status(400).json({ success: false, errors: errorMessages });
       }
       logger.error('Internal server error in validation middleware', { error });

@@ -19,7 +19,7 @@ const config = {
   },
 
   encryptionKey:
-    process.env.ENCRYPTION_KEY || 'a-very-secret-32-byte-key-for-dev', // Default for development
+    process.env.ENCRYPTION_KEY || 'thisisasecretkeyfor32byteslong!', // Default for development and testing
 
   cors: {
     allowedOrigins: process.env.ALLOWED_ORIGINS
