@@ -14,6 +14,7 @@ const PORT = process.env.PORT || 4000;
     logger.info(
       `📊 Health check available at: http://localhost:${PORT}/healthz`
     );
+    logger.info(`📚 API docs available at: http://localhost:${PORT}/api-docs`);
     logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
 })();

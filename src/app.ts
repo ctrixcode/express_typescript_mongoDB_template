@@ -1,6 +1,8 @@
 import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger';
 import {
   generalLimiter,
   bodyParserMiddleware,
@@ -29,6 +31,9 @@ app.use(sanitizeInput);
 
 // API Routes
 app.use('/api', routes);
+
+// Swagger Docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Error Handling
 app.use(notFoundHandler);
