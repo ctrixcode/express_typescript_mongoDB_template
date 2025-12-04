@@ -1,63 +1,37 @@
 import { Request, Response } from 'express';
 import * as exampleService from '../services/example.service';
-import { logger } from '../utils';
 import { toExampleDto } from '../mappers/example.mapper';
 import {
   CreateExampleInput,
   UpdateExampleInput,
 } from '../schemas/example.schema';
+import { asyncHandler } from '../utils/asyncHandler';
+import { success as successMessages } from '../constants/messages';
 
 /**
  * Create a new example item
- * POST /api/examples
  */
-export const createExample = async (
-  req: Request<object, object, CreateExampleInput>,
-  res: Response
-): Promise<void> => {
-  try {
+export const createExample = asyncHandler(
+  async (
+    req: Request<object, object, CreateExampleInput>,
+    res: Response
+  ): Promise<void> => {
     const example = await exampleService.createExample(req.body);
     const exampleDto = toExampleDto(example);
 
     res.status(201).json({
-      success: true,
+      status: 'success',
+      message: successMessages.CREATED('Example'),
       data: exampleDto,
-      message: 'Example item created successfully',
-    });
-  } catch (error: unknown) {
-    logger.error('Error in createExample controller:', error);
-
-    if (
-      error instanceof Error &&
-      error.name === 'ValidationError' &&
-      'errors' in error
-    ) {
-      res.status(400).json({
-        success: false,
-        message: 'Validation error',
-        errors: Object.values(error.errors as { message: string }[]).map(
-          err => err.message
-        ),
-      });
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
     });
   }
-};
+);
 
 /**
  * Get all example items with pagination and filtering
- * GET /api/examples
  */
-export const getExamples = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const getExamples = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const category = req.query.category as string;
@@ -76,7 +50,8 @@ export const getExamples = async (
     const examplesDto = result.examples.map(toExampleDto);
 
     res.status(200).json({
-      success: true,
+      status: 'success',
+      message: successMessages.FETCHED('Examples'),
       data: examplesDto,
       pagination: {
         page,
@@ -85,221 +60,87 @@ export const getExamples = async (
         pages: Math.ceil(result.total / limit),
       },
     });
-  } catch (error) {
-    logger.error('Error in getExamples controller:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-    });
   }
-};
+);
 
 /**
  * Get example item by ID
- * GET /api/examples/:id
  */
-export const getExampleById = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const getExampleById = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
-
-    if (!id) {
-      res.status(400).json({
-        success: false,
-        message: 'Example ID is required',
-      });
-      return;
-    }
-
     const example = await exampleService.getExampleById(id);
-
-    if (!example) {
-      res.status(404).json({
-        success: false,
-        message: 'Example item not found',
-      });
-      return;
-    }
-
     const exampleDto = toExampleDto(example);
 
     res.status(200).json({
-      success: true,
+      status: 'success',
+      message: successMessages.FETCHED('Example'),
       data: exampleDto,
     });
-  } catch (error) {
-    logger.error('Error in getExampleById controller:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-    });
   }
-};
+);
 
 /**
  * Update example item
- * PUT /api/examples/:id
  */
-export const updateExample = async (
-  req: Request<{ id: string }, object, UpdateExampleInput>,
-  res: Response
-): Promise<void> => {
-  try {
+export const updateExample = asyncHandler(
+  async (
+    req: Request<{ id: string }, object, UpdateExampleInput>,
+    res: Response
+  ): Promise<void> => {
     const { id } = req.params;
-
     const example = await exampleService.updateExample(id, req.body);
-
-    if (!example) {
-      res.status(404).json({
-        success: false,
-        message: 'Example item not found',
-      });
-      return;
-    }
-
     const exampleDto = toExampleDto(example);
 
     res.status(200).json({
-      success: true,
+      status: 'success',
+      message: successMessages.UPDATED('Example'),
       data: exampleDto,
-      message: 'Example item updated successfully',
-    });
-  } catch (error: unknown) {
-    logger.error('Error in updateExample controller:', error);
-
-    if (
-      error instanceof Error &&
-      error.name === 'ValidationError' &&
-      'errors' in error
-    ) {
-      res.status(400).json({
-        success: false,
-        message: 'Validation error',
-        errors: Object.values(error.errors as { message: string }[]).map(
-          err => err.message
-        ),
-      });
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
     });
   }
-};
+);
 
 /**
  * Delete example item (soft delete)
- * DELETE /api/examples/:id
  */
-export const deleteExample = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const deleteExample = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
-
-    if (!id) {
-      res.status(400).json({
-        success: false,
-        message: 'Example ID is required',
-      });
-      return;
-    }
-
-    const deleted = await exampleService.deleteExample(id);
-
-    if (!deleted) {
-      res.status(404).json({
-        success: false,
-        message: 'Example item not found',
-      });
-      return;
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Example item deleted successfully',
-    });
-  } catch (error) {
-    logger.error('Error in deleteExample controller:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-    });
+    await exampleService.deleteExample(id);
+    res.status(204).send(); // No content
   }
-};
+);
 
 /**
  * Get examples by category
- * GET /api/examples/category/:category
  */
-export const getExamplesByCategory = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const getExamplesByCategory = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const { category } = req.params;
-
-    if (!category) {
-      res.status(400).json({
-        success: false,
-        message: 'Category is required',
-      });
-      return;
-    }
-
     const examples = await exampleService.getExamplesByCategory(category);
+    const examplesDto = examples.map(toExampleDto);
 
     res.status(200).json({
-      success: true,
-      data: examples,
-      count: examples.length,
-    });
-  } catch (error) {
-    logger.error('Error in getExamplesByCategory controller:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
+      status: 'success',
+      message: successMessages.FETCHED('Examples'),
+      data: examplesDto,
     });
   }
-};
+);
 
 /**
  * Search examples by name or description
- * GET /api/examples/search
  */
-export const searchExamples = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const searchExamples = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const { q } = req.query;
-
-    if (!q || typeof q !== 'string') {
-      res.status(400).json({
-        success: false,
-        message: 'Search query is required',
-      });
-      return;
-    }
-
-    const examples = await exampleService.searchExamples(q);
+    const examples = await exampleService.searchExamples(q as string);
+    const examplesDto = examples.map(toExampleDto);
 
     res.status(200).json({
-      success: true,
-      data: examples,
-      count: examples.length,
-      query: q,
-    });
-  } catch (error) {
-    logger.error('Error in searchExamples controller:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
+      status: 'success',
+      message: successMessages.FETCHED('Examples'),
+      data: examplesDto,
     });
   }
-};
+);

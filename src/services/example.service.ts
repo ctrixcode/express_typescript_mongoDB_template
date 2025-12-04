@@ -5,6 +5,8 @@ import {
   CreateExampleInput,
   UpdateExampleInput,
 } from '../schemas/example.schema';
+import { NotFoundError, BadRequestError } from '../utils/ApiError';
+import { error as errorMessages } from '../constants/messages';
 
 /**
  * Create a new example item
@@ -35,8 +37,15 @@ export const getExamples = async (
  */
 export const getExampleById = async (
   exampleId: string
-): Promise<mongoose.HydratedDocument<IExample> | null> => {
-  return exampleRepository.findById(exampleId);
+): Promise<mongoose.HydratedDocument<IExample>> => {
+  if (!mongoose.Types.ObjectId.isValid(exampleId)) {
+    throw new BadRequestError(errorMessages.INVALID_ID('Example'));
+  }
+  const example = await exampleRepository.findById(exampleId);
+  if (!example) {
+    throw new NotFoundError(errorMessages.NOT_FOUND('Example'));
+  }
+  return example;
 };
 
 /**
@@ -45,15 +54,29 @@ export const getExampleById = async (
 export const updateExample = async (
   exampleId: string,
   updateData: UpdateExampleInput
-): Promise<mongoose.HydratedDocument<IExample> | null> => {
-  return exampleRepository.update(exampleId, updateData);
+): Promise<mongoose.HydratedDocument<IExample>> => {
+  if (!mongoose.Types.ObjectId.isValid(exampleId)) {
+    throw new BadRequestError(errorMessages.INVALID_ID('Example'));
+  }
+  const example = await exampleRepository.update(exampleId, updateData);
+  if (!example) {
+    throw new NotFoundError(errorMessages.NOT_FOUND('Example'));
+  }
+  return example;
 };
 
 /**
  * Delete example item (soft delete)
  */
 export const deleteExample = async (exampleId: string): Promise<boolean> => {
-  return exampleRepository.softDelete(exampleId);
+  if (!mongoose.Types.ObjectId.isValid(exampleId)) {
+    throw new BadRequestError(errorMessages.INVALID_ID('Example'));
+  }
+  const success = await exampleRepository.softDelete(exampleId);
+  if (!success) {
+    throw new NotFoundError(errorMessages.NOT_FOUND('Example'));
+  }
+  return true;
 };
 
 /**
