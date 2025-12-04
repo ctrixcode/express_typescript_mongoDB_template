@@ -18,6 +18,9 @@ const config = {
     refreshTokenExpiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRES_IN || '7d',
   },
 
+  encryptionKey:
+    process.env.ENCRYPTION_KEY || 'a-very-secret-32-byte-key-for-dev', // Default for development
+
   cors: {
     allowedOrigins: process.env.ALLOWED_ORIGINS
       ? process.env.ALLOWED_ORIGINS.split(',')
@@ -27,6 +30,14 @@ const config = {
 
 // Freeze the config object to make it immutable
 export const appConfig = Object.freeze(config);
+
+// Validate encryption key length
+if (appConfig.encryptionKey.length !== 32) {
+  console.error(
+    'ERROR: ENCRYPTION_KEY must be a 32-byte string. Please set it in your .env file.'
+  );
+  process.exit(1);
+}
 
 // Re-export other config modules for convenience
 export { default as dbInstance } from './db';
