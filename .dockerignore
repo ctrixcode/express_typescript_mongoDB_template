@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Node
+node_modules
+dist
+npm-debug.log
+pnpm-debug.log
+yarn-error.log
+lerna-debug.log
+
+# Editor
+.idea
+.vscode
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+
+# Logs
+logs
+*.log

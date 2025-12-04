@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # API Service (Your Express App)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/my-app-db
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+      - JWT_SECRET=a-safe-local-secret-for-development
+      - LOG_LEVEL=info
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  # MongoDB Service
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+# Define the network
+networks:
+  app-network:
+    driver: bridge
+
+# Define the volume for data persistence
+volumes:
+  mongo-data:
