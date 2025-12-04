@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IExample extends Document {
+  _id: mongoose.Schema.Types.ObjectId;
   name: string;
   description: string;
   isDeleted: boolean;
