@@ -1,0 +1,17 @@
+meta {
+  name: Update Example
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{baseURL}}/api/examples/123
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Updated Example Name"
+  }
+}

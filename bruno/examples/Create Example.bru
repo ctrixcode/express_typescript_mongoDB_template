@@ -1,0 +1,18 @@
+meta {
+  name: Create Example
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseURL}}/api/examples
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "New Example",
+    "description": "This is a new example from Bruno."
+  }
+}
